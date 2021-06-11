@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<folder>
+	<name><![CDATA[19. Encryption]]></name>
+	<tooltip><![CDATA[21. Encryption]]></tooltip>
+	<description><![CDATA[ ]]></description>
+		<display id="870674b2-0165-1000-8001-0a6e1ad168d0" type="" style="Table" enable="true">
+		<name><![CDATA[01. Wallet]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[]]></drillclass>
+		<CustomValues>
+			<TYPE><![CDATA[horizontal]]></TYPE>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[--- Author: Anand Mahajani
+--- Date: 2018/12/06 (of last update/validation)
+select
+  INST_ID
+, WRL_TYPE
+, WRL_PARAMETER
+, STATUS
+--, WALLET_TYPE
+--, WALLET_ORDER
+--, FULLY_BACKED_UP
+--, CON_ID
+from
+  gv$encryption_wallet
+order by
+  INST_ID]]></sql>
+		</query>
+		<query>
+			<sql><![CDATA[--- Author: Anand Mahajani
+--- Date: 2018/12/06 (of last update/validation)
+select
+  INST_ID
+, WRL_TYPE
+, WRL_PARAMETER
+, STATUS
+, WALLET_TYPE
+, WALLET_ORDER
+, FULLY_BACKED_UP
+, CON_ID
+from
+  gv$encryption_wallet
+order by
+  INST_ID]]></sql>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="Anand Mahajani" subject="SQL Developer" keywords="" />
+				<cell toppadding="1" bottompadding="1" leftpadding="1" rightpadding="1" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="BOLD" color="-16777216" rowshading="-8092540" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-8092540" labeling="ALL_PAGES" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="8" spacingafter="8" horizontalalign="LEFT" />
+				<header enable="true" generatedate="true">
+					<data>
+					
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						{\rtf1\ansi
+{\fonttbl\f0\fnil Monospaced;\f1\fnil Tahoma;}
+
+\f1\fs24\i0\b0 Date: 2018-8-1
+}
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																									</data>
+					<pattern pattern="yyyy-M-d" position="6" value="2018-8-1" />
+				</header>
+				<footer enable="true" generatedate="true">
+					<data value="null" />
+					<pattern pattern="#" position="6" value="1" />
+				</footer>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+</folder>
+</displays>
