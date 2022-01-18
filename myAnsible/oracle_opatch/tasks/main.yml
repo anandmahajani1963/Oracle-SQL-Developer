@@ -1,0 +1,13 @@
+---
+# tasks file for oracle_opatch
+- name: check current opatch version
+  tags: chk_optch
+  include: 
+    check_opatch_version.yml
+
+- name: Update opatch if not the latest
+  tags: upd_optch
+  include:
+    extract-opatch.yml
+
+#EOF

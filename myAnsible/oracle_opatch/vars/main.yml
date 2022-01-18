@@ -1,0 +1,8 @@
+---
+software_repo: /oracds/Linux/OPatch
+
+opatch:
+  version: 12.2.0.1.28
+  filename: p6880880_190000_Linux-x86-64.zip
+
+latest_opatch_version: "{{ opatch.version }}"

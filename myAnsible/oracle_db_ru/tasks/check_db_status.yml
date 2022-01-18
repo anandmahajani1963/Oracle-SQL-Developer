@@ -1,0 +1,19 @@
+---
+- name: Check if Oracle Database Instance(s) is/are up and running
+  shell: >
+    ps -ef|grep pmon|grep -v grep|cut -f3 -d"_";
+  register: ora_pmon
+
+- name: list database instance(s) running
+  debug:
+    msg: "Database {{ ora_pmon.stdout }} is running "
+
+- name: list Oracle Listner(s) running
+  shell: >
+    ps -ef|grep -v grep|grep lsnr |awk '{print $9}';
+  register: ora_listener
+
+- name: Listener Status
+  debug:
+    msg: "Oracle listner {{ ora_listener }} is running"
+

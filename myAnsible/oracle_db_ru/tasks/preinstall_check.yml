@@ -1,0 +1,26 @@
+---
+- name: include check_db_status.yml
+  include: 
+    check_db_status.yml
+
+- name: Run Patch Preinstall check
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home }};
+    export PATH={{ path }};
+    cd "{{ dbru_patch_dir }}/db_{{db_version}}_{{yyyy}}_{{qtr}}/{{patch_dir}}/{{item }}";
+    opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+  loop: 
+    - "{{patchid1}}"
+    - "{{patchid2}}"
+  register: ptch_prereq
+
+- name: Display results of Patch Preinstall check
+  debug:
+    var: ptch_prereq
+  #loop:
+    #- "{{db_19c_2021_Q4.patchid1}}"
+    #- "{{db_19c_2021_Q4.patchid2}}"
+    #- "{{db_19c_2021_Q4.patchid3}}"
+

@@ -1,0 +1,45 @@
+---
+- name: Run opatch version
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home }}; 
+    ${ORACLE_HOME}/OPatch/opatch version;
+  register: opatch_version
+
+- name: Display opatch verion
+  debug:
+    msg: "opatch version is: {{ opatch_version }}"
+
+- name: Extract Latest opatch version available
+  remote_user: "{{ oracle_owner }}"
+  unarchive:
+    src: "{{ dbru_stage_dir }}/{{ opatch.filename }}"
+    dest: "{{ oracle_home }}"
+    remote_src: true
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_group }}"
+  when:
+    'latest_opatch_version not in opatch_version.stdout'
+    #'{{ opatch.version }}|string not in opatch_version.stdout'
+  register: opatch_extract
+
+#- block
+- name: Rerun opatch version
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell:
+    export ORACLE_HOME={{ oracle_home }}; 
+    ${ORACLE_HOME}/OPatch/opatch version
+  register: opatch_version_new
+  when:
+    opatch_extract.changed
+
+- name: Display opatch verion After the update
+  debug:
+    msg: "Updated opatch version is: {{ opatch_version_new }}"
+  when:
+    opatch_extract.changed
+    #'latest_opatch_version in opatch_version.stdout'
+#when:
+  #opatch_extract.changed

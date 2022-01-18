@@ -1,0 +1,119 @@
+---
+- name: testing file creation
+  hosts: all
+  become: no
+  gather_facts: yes
+
+  become_user: oracle
+  vars:
+    oracle_sid: ESBDPT
+    oracle_owner: oracle
+    oracle_group: oinstall
+    db_version: 12.2.0.1
+    oracle_base: /u01/app/oracle
+    oracle_mount: "{{ oracle_base }}/product"
+    oracle_home: "{{ oracle_base }}/product/{{ db_version }}/dbhome"
+    path: "{{ oracle_home }}/bin"
+    tns_admin: "{{ oracle_home }}/network/admin"
+    expdp_type: FULL=Y
+    user_id: "'/ as sysdba'"
+    #target_cluster: "{{ ansible_host }}"
+    target_cluster: u02
+    send_mail_to: amahaj3@emory.edu
+    today: "{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}"
+    now: "{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+
+
+  tasks:
+
+    - name: get YYYYMON
+      action: shell date '+%b%Y'| tr "[a-z]" "[A-Z]"
+      register: YM
+    - name: create data pump export directory (Linux)
+      file:
+        state: directory
+        path: "/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}"
+        owner: "{{ oracle_owner }}"
+        group: "{{ oracle_group }}"
+        mode: 0755
+        recurse: yes
+
+    - name: create par file
+      copy:
+        dest: "/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid }}.par"
+        content: |
+          userid={{ user_id }}
+          directory={{ oracle_sid }}_DAILY{{ YM.stdout }}
+          dumpfile=expdp_{{ oracle_sid }}_{{ today }}_{{ now }}.dmp
+          logfile=expdp_{{ oracle_sid }}_{{ today }}_{{ now }}.log
+          exclude=statistics
+          exclude=db_link
+          {{ expdp_type }}
+          flashback_time=systimestamp
+
+    - name: check if the database instance is up and running
+      action: shell ps -ef|grep pmon|grep -v grep|cut -f3 -d"_"|grep {{ oracle_sid }}
+      register: ora_pmon
+
+    - name: oracle directory object sql script
+      copy:
+        dest: "/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/check_dir.sql"
+        content: |
+          set feedback on
+          spool /{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/check_dir.log
+          connect / as sysdba
+          create or replace directory {{ oracle_sid }}_DAILY{{ YM.stdout }} as '/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}';
+          exit
+      when:
+        - ora_pmon.stdout != ""
+
+    - name: create oracle directory object DAILY{{ YM.stdout }}
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ oracle_sid }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/sqlplus -S /nolog @/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/check_dir.sql
+
+    - name: run data pump export of the target database
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ oracle_sid }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/expdp parfile=/{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid   }}.par
+      when:
+        - ora_pmon.stdout != ""
+      register: expdp_resutl
+
+    - name: Send email of successful export
+      mail:
+        port: 25
+        host: localhost
+        from: "do-not-reply@{{ ansible_host }}"
+        to: "{{ send_mail_to }}"
+        subject: "Data pump export of {{ oracle_sid }} status"
+        body: "Data pump export of {{ oracle_sid }} completed successfully on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+        attach: 
+        - /{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid }}.par
+        - /{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid }}_{{ today }}_{{ now }}.log
+
+    - name: Fail if Oracle database is not up and running
+      fail:
+        msg: "The database instance {{ oracle_sid }} is not running"
+      when:
+        ora_pmon.stdout == ""
+
+    - name: Send email of export failure
+      mail:
+        port: 25
+        host: localhost
+        from: "do-not-reply@{{ ansible_host }}"
+        to: "{{ send_mail_to }}"
+        subject: "Data pump export of {{ oracle_sid }} status"
+        body: "Database {{ oracle_sid }} is not running. \nData pump export of {{ oracle_sid }} failed on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+        attach: 
+        - /{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid }}.par
+        - /{{ target_cluster }}/{{ oracle_sid }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ oracle_sid }}_{{ today }}_{{ now }}.log
+      when:
+        ora_pmon.stdout == "" or expdp_resutl.rc != 0

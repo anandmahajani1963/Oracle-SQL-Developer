@@ -1,0 +1,27 @@
+---
+- name: Send email of successful RMAN Cold Backup of {{db_name}}
+  mail:
+    port: 25
+    host: localhost
+    from: "do-not-reply@{{ ansible_nodename }}"
+    to: "{{ send_mail_to }}"
+    subject: "RMAN Cold Backup of {{ db_name }} status"
+    body: "RMAN Cold Backup of {{ db_name }} completed successfully on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+    attach:
+    - "{{ logs_dir }}/{{db_name}}/{{db_name}}_backup_{{Today}}.log"
+  when:
+    rman_status.rc == 0
+
+- name: Send email of failure of RMAN Cold Backup of {{db_name}}
+  mail:
+    port: 25
+    host: localhost
+    from: "do-not-reply@{{ ansible_nodename }}"
+    to: "{{ send_mail_to }}"
+    subject: "RMAN Cold backup of {{ db_name }} status"
+    body: "RMAN Cold Backup of {{ db_name }} failed with errors on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+    attach:
+    - "{{ logs_dir }}/{{db_name}}/{{db_name}}_backup_{{Today}}.log"
+  when:
+    rman_status.rc != 0
+#EOF

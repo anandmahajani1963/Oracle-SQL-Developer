@@ -1,0 +1,21 @@
+---
+- name: start cluster database in nomount mode
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    srvctl start instance -d {{ db_name }} -i {{ pmon_status.stdout }} -o nomount
+  when: 
+    cluster_mode.stdout == 'TRUE'
+
+- name: start singnle instance database in nomount mode
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    echo 'startup nomount'|sqlplus -S {{user_id}}
+  when: 
+    cluster_mode.stdout == 'FALSE'
+#EOF

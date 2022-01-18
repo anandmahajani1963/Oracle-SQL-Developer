@@ -1,0 +1,10 @@
+---
+#db_version: 12c
+oracle_home: "{{ oracle_base }}/product/{{ db_version }}/RAC"
+ora_crs_home: /u01/app/12.2.0.1/grid
+tns_admin: "{{ ora_crs_home }}/network/admin"
+path: "{{ base_path }}:{{ oracle_home }}/bin:{{ oracle_home }}/OPatch"
+opatch_dir: "{{ oracle_home }}/OPatch"
+user_id: "'/ as sysdba'"
+#base_dir: /oracle
+#EOF

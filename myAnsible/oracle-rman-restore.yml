@@ -1,0 +1,13 @@
+---
+- name: Oracle RMAN cold backup
+  hosts: all
+  become: no
+  remote_user: oracle
+  vars:
+    db_version: "12.2.0.1"
+    db_name: KRTRNG
+    cluster_mount: /euclsd25
+    backup_date: 20210929
+
+  roles:
+    - rman-restore

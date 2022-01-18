@@ -1,0 +1,21 @@
+---
+- name: Include create_directories.yml
+  include: 
+    create_directories.yml
+
+- name: include copy_files.yml
+  include:
+    copy_files.yml
+
+- name: Copy RMAN cold backup script
+  template: 
+    src: rman_cold_backup.j2
+    dest: "{{scripts_dir}}/rman_cold_backup.rcv"
+    owner: "{{oracle_user}}" 
+    group: "{{oracle_inst_group}}"
+    mode: 0644
+    
+- name: include rman rman_cold_backup.yml to run RMAN cold backup
+  include:
+    rman_cold_backup.yml
+#EOF

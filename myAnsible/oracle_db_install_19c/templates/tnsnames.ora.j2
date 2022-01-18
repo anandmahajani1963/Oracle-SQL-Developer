@@ -1,0 +1,8 @@
+{{dbname}} =
+  (DESCRIPTION = 
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ansible_nodename}})(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{dbname}}.{{dbdomain}})
+    )
+  )

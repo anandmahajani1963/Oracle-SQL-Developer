@@ -1,0 +1,15 @@
+---
+- name: Check Oracle database Cluster mode
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{pmon_status.stdout}};
+    export ORACLE_HOME={{oracle_home}};
+    export PATH={{path}};
+    export TNS_ADMIN={{tns_admin}};
+    {{oracle_home}}/bin/sqlplus -S /NOLOG @{{scripts_dir}}/db_cluster_mode.sql;
+  register: cluster_mode
+
+- name: Display Cluster status 
+  debug:
+    msg: "Cluster mode: {{cluster_mode.stdout}}"
+#EOF

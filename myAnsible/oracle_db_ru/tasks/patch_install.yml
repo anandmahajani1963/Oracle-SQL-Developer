@@ -1,0 +1,29 @@
+---
+- name: include check_db_status.yml
+  include:
+    check_db_status.yml
+
+- name: Install Patch
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home }};
+    export PATH={{ path }};
+    cd "{{ dbru_patch_dir }}/db_{{db_version}}_{{yyyy}}_{{qtr}}/{{patch_dir}}/{{ item }}";
+    opatch apply -silent -force -ocmrf {{ software_repo }}/ocm.rsp
+  loop:
+    - "{{patchid1}}"
+    - "{{patchid2}}"
+  when:
+    #- item.stdout.find('Prereq "checkConflictAgainstOHWithDetail" passed.') != -1
+    - ora_pmon.stdout=='' 
+    - ora_listener.stdout=='' 
+  #loop: "{{ ptch_prereq.results }}"
+  register: patch_inst_results
+
+#- name: Display results of Patch Install 
+  #debug:
+    #msg: "{{item.stdout_lines}}"
+  #loop: "{{patch_inst_results.results}}"
+
+#EOF

@@ -1,0 +1,30 @@
+---
+- hosts: oel8-19c-db
+  vars:
+    oracle_owner: oracle
+    oracle_home: /opt/oracle/product/19c/dbhome_1
+    opatch_dir: "{{oracle_home}}/OPatch"
+    path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:{{oracle_home}}/bin:{{opatch_dir}}"
+  tasks:
+    - name: List of database names on host
+      shell: cat /etc/oratab|grep {{ oracle_home }}|grep ':Y'|grep -v \*|cut -f1 -d':'
+      register: dblist
+    - debug:
+        var: dblist
+    
+    - name: 12c - apply datapatch
+      tags: datapatch
+      become: yes
+      become_user: "{{ oracle_owner }}"
+      shell: >
+        export ORACLE_SID={{ item }};
+        export ORACLE_HOME={{ oracle_home }};
+        export PATH={{ path }};
+        cd "{{ opatch_dir }}";
+        ./datapatch -verbose
+      register: datapatch
+      with_items: "{{ dblist.stdout_lines }}"
+      run_once: true
+      failed_when: datapatch.rc == 1
+      tags: catbundle
+    

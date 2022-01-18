@@ -1,0 +1,43 @@
+---
+#- name: Check the database status before starting the restore (oracle_instance_status.yml)
+  #include: 
+    #oracle_instance_status.yml
+
+- name: Check the cluster mode of the database
+  include:
+    oracle_cluster_mode.yml
+
+- name: Shutdown database for restore
+  include:
+    oracle_stopdb.yml
+
+- name: Start Database (instance) in nomount mode
+  include:
+    oracle_startnomount.yml
+
+- name: Running RMAN Restore
+  vars:
+    oracle_dbid: "{{ dbid.stdout }}"
+  shell: >
+    export ORACLE_HOME={{oracle_home}};
+    export ORACLE_SID={{pmon_status.stdout}};
+    export PATH={{path}};
+    export TNS_ADMIN={{tns_admin}};
+    {{oracle_home}}/bin/rman cmdfile={{scripts_dir}}/rman_restore.rcv
+  when:
+    pmon_status != '' #and log_mode.stdout == 'NOARCHIVELOG'
+  register:
+    restore_status
+
+- name: shutdown database after completion of restore
+  include:
+    oracle_stopdb.yml
+
+- name: restart the database after completion of restore
+  include:
+    oracle_startdb.yml
+
+- name: email notification
+  include:
+    mail_notification.yml
+#EOF

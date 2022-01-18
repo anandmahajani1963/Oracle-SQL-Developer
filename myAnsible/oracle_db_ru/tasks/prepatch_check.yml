@@ -1,0 +1,37 @@
+---
+- hosts: oel8-19c-db
+  become: yes
+  become_user: oracle
+  vars:
+    qtr: Q4
+    combo_patch: 33248471
+    ojvm_patch: 33192694
+    db_patch: 33182768
+    db_patch1: 33192793
+    db_patch2: 33208123
+
+    gi_patch1: 33192793
+    gi_patch2: 33208123
+    gi_patch3: 33208107
+    gi_patch4: 33239955
+    gi_patch5: 32585572
+
+    dbru_patch_dir: /software/Database/Oracle/19c/db_19c_2021_Q4
+
+- name: include check_db_status.yml
+  include: 
+    check_db_status.yml
+
+- name: Run Patch Preinstall check
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    cd "{{ dbru_patch_dir }}/{{combo_patch}}/{{ db_19c_2021_Q4.patchid }}";
+    export ORACLE_HOME={{ oracle_home }};
+    export PATH={{ path }};
+    opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+  register: ptch_prereq
+
+- name: Display results of Patch Preinstall check
+  debug:
+    msg: "{{ ptch_prereq.stdout}}"

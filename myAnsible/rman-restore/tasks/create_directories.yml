@@ -1,0 +1,31 @@
+---
+- name: create script directory if not present
+  remote_user: oracle
+  file:
+    path: "{{ scripts_dir }}"
+    state: directory
+    owner: "{{oracle_user}}"
+    group: "{{oracle_inst_group}}"
+    mode: 0755
+  register: scripts_dir_status
+
+- name: create backup/restore directory if not present
+  remote_user: oracle
+  file:
+    path: "{{cluster_mount}}/{{db_name}}/rman/{{Today}}"
+    state: directory
+    owner: "{{oracle_user}}"
+    group: "{{oracle_inst_group}}"
+    mode: 0755
+  register: backup_dir_status
+
+- name: create logs directory if not present
+  remote_user: oracle
+  file:
+    path: "{{logs_dir}}/{{db_name}}"
+    state: directory
+    owner: "{{oracle_user}}"
+    group: "{{oracle_inst_group}}"
+    mode: 0755
+  register: logs_dir_status
+# EOF

@@ -1,0 +1,88 @@
+---
+- name: Check the database status before starting the backup (oracle_instance_status.yml)
+  include: 
+    oracle_instance_status.yml
+
+- name: check cluster mode
+  include:
+    oracle_cluster_mode.yml
+
+- name: Check the ARCHIVELOG/NOARCHIVELOG mode of the database
+  include:
+    oracle_log_mode.yml
+
+- name: shutdown cluster database
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    srvctl stop database -d {{ db_name }}
+  register: db_shut
+  when:
+    cluster_mode.stdout == 'TRUE'
+
+- name: shutdown singnle instance database
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{ db_name }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    echo 'shutdown immediate'|sqlplus -S {{user_id}}
+  register: si_shut
+  when:
+    cluster_mode.stdout == 'FALSE'
+
+- name: start cluster database instance in mount mode
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    srvctl start instance -d {{ db_name }} -i {{ pmon_status.stdout }} -o mount
+  register: inst_mount
+  when:
+    cluster_mode.stdout == 'TRUE'
+
+- name: start singnle instance database in mount mode
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    echo 'startup mount'|sqlplus -S {{user_id}}
+  register: si_mount
+  when:
+    cluster_mode.stdout == 'FALSE'
+
+- name: Running RMAN cold backup of {{db_name}}
+  shell: >
+    export ORACLE_HOME={{oracle_home}};
+    export ORACLE_SID={{pmon_status.stdout}};
+    export PATH={{path}};
+    export TNS_ADMIN={{tns_admin}};
+    {{oracle_home}}/bin/rman cmdfile={{scripts_dir}}/rman_cold_backup.rcv
+  register: rman_status
+  when:
+    pmon_status.stdout != '' and log_mode.stdout == 'NOARCHIVELOG'
+
+- name: start remaining instances of a clustered database.
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    srvctl start database -d {{ db_name }} 
+  register: db_restart
+  when:
+    cluster_mode.stdout == 'TRUE' and rman_status.rc == 0
+  
+- name: email notification
+  include: 
+    mail_notification.yml
+#EOF

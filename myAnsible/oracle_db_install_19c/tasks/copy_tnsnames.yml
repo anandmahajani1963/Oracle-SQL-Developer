@@ -1,0 +1,10 @@
+---
+- name: copy tnsnames.ora file
+  template:
+    src: "tnsnames.ora.j2"
+    dest: "{{tns_admin}}/tnsnames.ora"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+
+#EOF

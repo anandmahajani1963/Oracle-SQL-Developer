@@ -1,0 +1,9 @@
+---
+- name: Check Oracle database status
+  shell: >
+    export ORACLE_SID={{db_name}};
+    export ORACLE_HOME={{oracle_home}};
+    export PATH={{path}};
+    ps -ef|grep -v grep |grep pmon|grep {{db_name}}|cut -f3 -d"_"
+  register: pmon_status
+#EOF

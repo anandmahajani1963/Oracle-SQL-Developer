@@ -1,0 +1,34 @@
+---
+- name: Include create_directories.yml
+  include:
+    create_directories.yml
+
+- name: include copy_files.yml
+  include:
+    copy_files.yml
+
+- name: Check the database status before starting the restore (oracle_instance_status.yml)
+  include: 
+    oracle_instance_status.yml
+
+- name: include oracle_dbid.yml
+  include:
+    oracle_dbid.yml
+
+- name: Fetch variable restore_date_time
+  shell:
+    cat "{{cluster_mount}}/{{db_name}}/rman/{{backup_date}}/recovery_time.yml"
+  register: restore_date_time
+    
+- name: copy rman_restore.rcv file
+  template: 
+    src: rman-restore.j2
+    dest: "{{scripts_dir}}/rman_restore.rcv"
+    owner: "{{oracle_user}}" 
+    group: "{{oracle_inst_group}}"
+    mode: 0644
+
+- name: include rman rman_restore.yml to run RMAN restore/refresh
+  include:
+    rman_restore.yml
+#EOF

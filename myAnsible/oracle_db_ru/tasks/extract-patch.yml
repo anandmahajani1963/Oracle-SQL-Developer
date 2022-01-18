@@ -1,0 +1,11 @@
+---
+- name: extract Patch
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  unarchive:
+    src: "{{ dbru_patch_dir }}/db_{{db_version}}_{{yyyy}}_{{qtr}}/{{ patch_filename }}"
+    dest: "{{ dbru_patch_dir }}/db_{{db_version}}_{{yyyy}}_{{qtr}}"
+    remote_src: true
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_group }}"
+    mode: 0755 

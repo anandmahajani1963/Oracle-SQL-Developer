@@ -1,0 +1,18 @@
+---
+- name: display enviroment vars
+  debug:
+    msg: "Oracle Home: {{ oracle_home }}, Oracle SID: {{ oracle_sid }}"
+
+- name: Check Log Mode (Archivelog/Noarchivelog) of the database
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  #vars:
+    #oracle_sid: DEVGG1
+  shell: >
+    export ORACLE_SID={{ oracle_sid }};
+    export ORACLE_HOME={{ oracle_home }};
+    export PATH={{ path }};
+    {{ oracle_home }}/bin/sqlplus -S / as sysdba @db_log_mode.sql
+  register: db_log_mode
+  when:
+    ora_pmon.stdout != ''

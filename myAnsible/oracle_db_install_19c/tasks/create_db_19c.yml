@@ -1,0 +1,13 @@
+---
+- name: create oracle Database
+  become_user: oracle
+  shell: >
+    export ORACLE_HOME="{{oracle_home_19c}}";
+    export PATH="{{path}}";
+    dbca -silent -createDatabase -responseFile {{oracle_home_19c}}/assistants/dbca/dbca_19c.rsp -sysPassword '{{syspass}}' -systemPassword '{{systempass}}'';
+  register: dbca_out
+
+- debug:
+    var: dbca_out
+
+#EOF

@@ -1,0 +1,24 @@
+---
+- name: Run Oracle Preinstall RPM
+  yum:
+    name: oracle-database-preinstall-19c
+    state: present
+  register:
+    db_preinst_19c
+
+- name: set system hugepages
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: |
+      vm.nr_hugepages={{ ansible_memtotal_mb/2 | round | int }}
+
+- name: run sysctl -p
+  shell: >
+    sysctl -p;
+
+- name: Set Oracle user password
+  tags: orapass
+  shell: >
+    echo "{{oracle_pass}}"|passwd oracle --stdin
+
+#EOF

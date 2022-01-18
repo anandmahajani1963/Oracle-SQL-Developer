@@ -1,0 +1,1 @@
+spool log to {{backup_dir}}/rman_cold_backup.log

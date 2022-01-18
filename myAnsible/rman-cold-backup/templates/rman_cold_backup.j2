@@ -1,0 +1,18 @@
+spool log to '{{ logs_dir }}/{{db_name}}/{{db_name}}_backup_{{Today}}.log';
+connect catalog {{ rman_user }}/{{ rman_pw }}@{{ rman_catalog }}
+connect target /
+alter database backup controlfile to trace as '{{cluster_mount}}/{{db_name}}/rman/{{Today}}/{{db_name}}_controlfile.sql' reuse;
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+allocate channel d3 type disk;
+backup database format '{{cluster_mount}}/{{db_name}}/rman/{{Today}}/%d_DATABASE_%T_%s_%p';
+host "date '+%Y/%m/%d %H:%M:%S' >{{cluster_mount}}/{{db_name}}/rman/{{Today}}/recovery_time.yml";
+backup current controlfile format '{{cluster_mount}}/%d/rman/{{Today}}/%d_controlfile_%T_%s_%p';
+backup spfile format '{{cluster_mount}}/{{db_name}}/rman/{{Today}}/%d_spfile_%T_%s_%p';
+release channel d1;
+release channel d2;
+release channel d3;
+}
+alter database open;
+exit

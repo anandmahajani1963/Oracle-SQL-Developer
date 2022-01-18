@@ -1,0 +1,21 @@
+---
+- name: shutdown cluster database
+  shell: >
+    export ORACLE_SID={{ db_name }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    srvctl stop database -d {{ db_name }}
+  when: 
+    cluster_mode.stdout == 'TRUE'
+
+- name: shutdown singnle instance database
+  shell: >
+    export ORACLE_SID={{ pmon_status.stdout }};
+    export ORACLE_HOME={{ oracle_home }};
+    export TNS_ADMIN={{ tns_admin }};
+    export PATH={{ path }};
+    echo 'shutdown immediate'|sqlplus -S {{user_id}}
+  when: 
+    cluster_mode.stdout == 'FALSE'
+#EOF

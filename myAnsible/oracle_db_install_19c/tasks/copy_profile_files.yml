@@ -1,0 +1,9 @@
+---
+- name: copy .bash_profile for user oracle
+  template:
+    src: bash_profile_oracle.j2
+    dest: /home/oracle/.bash_profile
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

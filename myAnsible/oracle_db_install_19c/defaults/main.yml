@@ -1,0 +1,17 @@
+---
+# defaults file for oracle_db_install
+oracle_version: 19.3.0.0
+oracle_owner: oracle
+oracle_dba_grp: dba
+oracle_inst_grp: oinstall
+oracle_base: /u01/app/oracle
+oracle_inventory: /u01/app
+oracle_home_19c: "{{oracle_base}}/product/{{oracle_version}}/dbhome"
+oracle_data: /u02/oradata
+oracle_fra: /u02/fast_recovery_area
+software_repo: /oracds/Linux/19.3.0.0
+oracle_db_19c_zip: "{{software_repo}}/{{oracle_version}}/LINUX.X64_193000_db_home.zip"
+tns_admin: "{{oracle_home_19c}}/network/admin"
+
+path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/loca/bin:/usr/local/sbin:{{oracle_home_19c}}/bin:{{oracle_home_19c}}/OPatch"
+

@@ -1,0 +1,19 @@
+---
+- name: copy db_cluster_mode.sql
+  copy:
+    src: db_cluster_mode.sql
+    dest: "{{ scripts_dir }}"
+    owner: "{{oracle_user}}"
+    group: "{{oracle_inst_group}}"
+    mode: 0755
+  register: dcm_file
+
+- name: copy db_log_mode.sql
+  copy:
+    src: db_log_mode.sql
+    dest: "{{ scripts_dir }}"
+    owner: "{{oracle_user}}"
+    group: "{{oracle_inst_group}}"
+    mode: 0755
+  register: dlm_file
+#EOF

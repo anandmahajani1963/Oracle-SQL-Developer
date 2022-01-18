@@ -1,0 +1,17 @@
+---
+- name: copy database template files - CDB/PDB
+  template:
+    src: "dev19c_cdbpdb_custom.dbt.j2"
+    dest: "{{oracle_home_19c}}/assistants/dbca/templates/dev19c_cdbpdb_custom.dbt"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+
+- name: copy database template files - NO CDB/PDB
+  template:
+    src: "dev19c_nocdb_custom.dbt.j2"
+    dest: "{{oracle_home_19c}}/assistants/dbca/templates/dev19c_nocdb_custom.dbt"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

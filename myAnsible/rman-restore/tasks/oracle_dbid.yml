@@ -1,0 +1,16 @@
+---
+- name: Get DBID 
+  remote_user: oracle
+  shell: >
+    export ORACLE_SID={{pmon_status.stdout}};
+    export ORACLE_HOME={{oracle_home}};
+    export PATH={{path}};
+    export TNS_ADMIN={{tns_admin}};
+    {{oracle_home}}/bin/sqlplus -S /NOLOG @{{scripts_dir}}/db_id.sql;
+  register: dbid
+  when:
+    pmon_status.stdout != ""
+
+- name: Display Oracle DBID for {{ db_name }} 
+  debug:
+    msg: "{{ db_name }} DBID : {{dbid.stdout}}"

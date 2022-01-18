@@ -1,0 +1,244 @@
+---
+- name: testing file creation
+  hosts: all
+  become: no
+  gather_facts: yes
+
+  become_user: oracle
+  vars:
+    oracle_owner: oracle
+    oracle_group: oinstall
+    db_version: 12.2.0.1
+    oracle_base: /u01/app/oracle
+    oracle_mount: "{{ oracle_base }}/product"
+    oracle_home: "{{ oracle_base }}/product/{{ db_version }}/dbhome"
+    path: "{{ oracle_home }}/bin"
+    tns_admin: "{{ oracle_home }}/network/admin"
+    #impdp_type: SCHEMAS=ESB30PT,ESB30PTDEV,ESB30PTQA
+    schemas:
+      - ESB30PT
+      - ESB30PTDEV
+      - ESB30PTQA
+    impdp_option: table_exists_action=replace
+    user_id: "'/ as sysdba'"
+    source_db: ESBDPT
+    target_db: ESBDPT
+    source_cluster: u02
+    target_cluster: u02
+    send_mail_to: amahaj3@emory.edu
+
+    parallel: 1
+    today: "{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}"
+    now: "{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+
+  tasks:
+
+    # How do we handle 1st of the month (and the latest export is completed on last day of the previous month
+    - name: get YYYYMON
+      action: shell date '+%b%Y'| tr "[a-z]" "[A-Z]"
+      register: YM
+#
+    - name: create data pump export directory (Linux)
+      file:
+        state: directory
+        path: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}"
+        owner: "{{ oracle_owner }}"
+        group: "{{ oracle_group }}"
+        mode: 0755
+        recurse: yes
+      register: target_dir
+#
+    - name: list name of export directory
+      debug:
+        msg: "Directory is /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}"
+#
+    - name: find the latest data pump export file count
+      # how would you handle parallel export
+      action: shell ls -lrt /{{ source_cluster }}/{{ source_db }}/expdp/DAILY{{ YM.stdout }}/expdp_{{ source_db }}_*.dmp|wc -l
+      register: expdp_file_count
+#    
+    - name: Export file count
+      debug:
+        msg: "Data Pump export File count is {{ expdp_file_count.stdout }}"
+      #{{ parallel }}=expdp_file_count.stdout
+#
+    - name: No Export file available for import - send an email
+      mail:
+        port: 25
+        host: localhost
+        from: "do-not-reply@{{ ansible_host }}"
+        to: "{{ send_mail_to }}"
+        subject: "Data pump import of {{ target_db }} status"
+        body: "No Export file available for import.\nData pump import of {{ impdp_type }} failed on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+        attach: 
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}_{{ today }}_{{ now }}.log
+      when:
+        expdp_file_count == 0
+#
+    - name: find the latest data pump export file(s)
+      action: shell cd /{{ source_cluster }}/{{ source_db }}/expdp/DAILY{{ YM.stdout }}; ls -t1 expdp_{{ source_db }}_*.dmp|head -n 1
+      register: expdp_file_name
+      vars:
+        dumpfile: expdp_file_name.stdout
+#    
+    - name: Dump file name
+      debug:
+        msg: "Dumpfile used for import is {{ expdp_file_name.stdout  }}"
+#
+    - name: create par file
+      copy:
+        dest: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par"
+        content: |
+          userid={{ user_id }}
+          dumpfile={{ source_db }}_DAILY{{ YM.stdout }}:{{ expdp_file_name.stdout }}
+          logfile={{ target_db }}_DAILY{{ YM.stdout }}:impdp_{{ target_db }}_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log
+          SCHEMAS={{ schemas }}
+          exclude=USER:"in ({{ schemas }})"
+          {{ impdp_option }}
+      register: parfile
+#
+    - name: print parfile name
+      debug:
+        msg: "parfile is /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par"
+#
+    - name: inline edit 1 of par file
+      action:
+        shell sed -i 's/, u/,/g;s/\[u//g;s/\]//g' "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par"
+#
+    - name: inline edit 2 of par file
+      action:
+        shell sed -i "/SCHEMAS/s/[']//g" "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par"
+#
+    - name: check if the database instance is up and running
+      action: shell ps -ef|grep pmon|grep -v grep|cut -f3 -d"_"|grep -i {{ target_db }}
+      register: ora_pmon
+#
+    - name: oracle SOURCE directory object sql script
+      copy:
+        dest: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_source_dir.sql"
+        content: |
+          set feedback on
+          spool /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_source_dir.log
+          connect / as sysdba
+          create or replace directory {{ source_db }}_DAILY{{ YM.stdout }} as '/{{ source_cluster }}/{{ source_db }}/expdp/DAILY{{ YM.stdout }}';
+          exit
+      when:
+        - ora_pmon.stdout != ""
+#
+    - name: create oracle SOURCE directory object DAILY{{ YM.stdout }}
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ target_db }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/sqlplus -S /nolog @/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_source_dir.sql
+#
+    - name: oracle TARGET directory object sql script
+      copy:
+        dest: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_target_dir.sql"
+        content: |
+          set feedback on
+          spool /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_target_dir.log
+          connect / as sysdba
+          create or replace directory {{ target_db }}_DAILY{{ YM.stdout }} as '/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}';
+          exit
+      when:
+        - ora_pmon.stdout != ""
+#
+    - name: create oracle TARGET directory object DAILY{{ YM.stdout }}
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ target_db }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/sqlplus -S /nolog @/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/check_target_dir.sql
+#
+    - name: include task to drop schema objects
+      include: oracle_drop_schema_objects.yml
+#
+    - name: run data pump import of the target database
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ target_db }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/impdp parfile=/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par
+      when:
+        - ora_pmon.stdout != "" and expdp_file_count != 0
+      register: impdp_result
+#      ignore_errors: true
+#
+    - name: Print run status of impdp
+      debug:
+        msg: "impdp_result is {{impdp_result.rc}}"
+#
+    - name: Fail if Oracle database is not up and running
+      fail:
+        msg: "The database instance {{ target_db }} is not running"
+      when:
+        ora_pmon.stdout == "" and expdp_file_count != 0
+#
+    - name: Send email of successful export
+      mail:
+        port: 25
+        host: localhost
+        from: "do-not-reply@{{ ansible_host }}"
+        to: "{{ send_mail_to }}"
+        subject: "Data pump import of {{ target_db }} status"
+        body: "Data pump export of {{ target_db }} completed successfully on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+        attach: 
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}_{{ today }}_{{ now }}.log
+      when:
+        impdp_result.rc == 0
+#
+    - name: Create SQL Script to recompile schema(s).
+      copy:
+        dest: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/recompile_schema.sql"
+        content: |
+          set feedback on
+          spool /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/recompile_schema.log
+          connect / as sysdba
+#
+    - name: Append recompile statements to recompile_schema.sql script
+      lineinfile:
+        path: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/recompile_schema.sql"
+        line:
+          "EXECUTE DBMS_UTILITY.COMPILE_SCHEMA(SCHEMA=>'{{ item }}');"
+      with_items:
+        - "{{ schemas }}"
+    - name: Append exit statement to recompile_schema.sql script
+      lineinfile:
+        path: "/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/recompile_schema.sql"
+        line:
+          exit;
+#
+    - name: Recompile All schemas
+      remote_user: oracle
+      action: >
+        shell export ORACLE_SID={{ target_db }};
+        export ORACLE_HOME={{ oracle_home }};
+        export TNS_ADMIN={{ tns_admin }};
+        {{ path }}/sqlplus -S /nolog @/{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/recompile_schema.sql
+#
+    - name: Fail if Oracle database is not up and running
+      fail:
+        msg: "The database instance {{ target_db }} is not running"
+      when:
+        ora_pmon.stdout == ""
+#
+    - name: Send email of export failure
+      mail:
+        port: 25
+        host: localhost
+        from: "do-not-reply@{{ ansible_host }}"
+        to: "{{ send_mail_to }}"
+        subject: "Data pump import of {{ target_db }} status"
+        body: "Data pump import of {{ impdp_type }} failed on {{ ansible_date_time.month }}/{{ ansible_date_time.day }}/{{ ansible_date_time.year }} at {{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}:{{ ansible_date_time.second }}"
+        attach: 
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}.par
+        - /{{ target_cluster }}/{{ target_db }}/expdp/DAILY{{ YM.stdout }}/impdp_{{ target_db }}_{{ today }}_{{ now }}.log
+      when:
+        ora_pmon.stdout == "" or impdp_result.rc != 0
+# End of the playbook

@@ -1,0 +1,21 @@
+oracle_user: oracle
+oracle_inst_group: oinstall
+oracle_dba_group: dba
+
+oracle_base: /u01/app/oracle
+base_path: /bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/home/oracle/.local/bin:/etc
+
+home_dir: /home/oracle
+dbadmin: /u01/app/dbadmin
+scripts_dir: "{{dbadmin}}/jobs"
+logs_dir: "{{dbadmin}}/logs"
+
+rman_user: rman
+rman_pw: EUdbap9rman
+rman_catalog: DBACATP
+
+Today: "{{ansible_date_time.year}}{{ansible_date_time.month}}{{ansible_date_time.day}}"
+Today_: "{{ansible_date_time.iso8601}}"
+
+send_mail_to: dba@emory.edu
+#EOF

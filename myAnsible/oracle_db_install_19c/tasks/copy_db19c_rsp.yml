@@ -1,0 +1,9 @@
+---
+- name: copy db19c response file
+  template:
+    src: "db19c.rsp.j2"
+    dest: "{{oracle_home_19c}}/install/response/db19c.rsp"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

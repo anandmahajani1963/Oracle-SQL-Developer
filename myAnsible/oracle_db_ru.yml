@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: true
+  vars:
+    dbname: OAMDEV
+    dbdomain: cc.emory.edu
+    db_version: 
+    db_release: 
+    yyyy: 2021
+    qtr: 
+    patchid: 
+    patch_filename: p{{patchid}}_{{db_release}}_Linux-x86-64.zip
+    patch_dir: "{{patchid}}"
+    patchid1: 
+    patchid2: 
+
+  roles:
+    - role: oracle_opatch
+    - role: oracle_db_ru
