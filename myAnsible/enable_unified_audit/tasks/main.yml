@@ -1,0 +1,19 @@
+---
+# tasks file for oracle_db_install
+- name: shutdown running database instances
+  tags: dbshut
+  include: 
+    dbshut.yml
+
+- name: Enable Unified Auditing
+  tags: uni_audit
+  include:
+    enable_unified_auditing.yml
+
+- name: start database instances listed in oratab
+  tags: dbstart
+  include: 
+    dbstart.yml
+
+
+#EOF

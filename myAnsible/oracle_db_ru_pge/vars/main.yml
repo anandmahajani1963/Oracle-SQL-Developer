@@ -1,0 +1,93 @@
+---
+db_version: 19c
+oracle_home: "{{ oracle_base }}/product/{{ db_version }}/dbhome_1"
+tns_admin: "{{ oracle_home }}/network/admin"
+path: "{{ base_path }}:{{ oracle_home }}/bin:{{ oracle_home }}/OPatch"
+opatch_dir: "{{ oracle_home }}/OPatch"
+user_id: "'/ as sysdba'"
+software_repo: /software/Database/Oracle
+dbru_patch_dir: "{{ software_repo }}/{{ db_version }}"
+
+opatch:
+  version: 12.2.0.1.28
+  filename: p6880880_190000_Linux-x86-64.zip
+
+latest_opatch_version: "{{ opatch.version }}"
+# 12.2.0.1
+# January 2021
+db_12201_2021_Q1:
+  patchid: 32228578
+  patch_version: 12.2.0.1.210119
+  filename: p32228578_122010_Linux-x86-64.zip
+#Jan April 2021
+db_12201_2021_Q2:
+  patchid: 32473172
+  patch_version: 12.2.0.1.210420
+  filename: p32473172_122010_Linux-x86-64.zip
+# July 2021
+db_12201_2021_Q3:
+  patchid: 32916808
+  patch_version: 12.2.0.1.210720
+  filename: p32916808_122010_Linux-x86-64.zip
+gidb_12201_2021_Q3:
+  patchid: 32928749
+  patch_version: 12.2.0.1.210720
+  filename: p32928749_122010_Linux-x86-64.zip
+gidb_19c_2021_Q3:
+  patchid: 32900083
+  patch_version: 19.12.0.0.210720
+  filename: p32900083_190000_Linux-x86-64.zip
+# October 2021
+db_12201_2021_Q4:
+  patchid:
+  patch_version:
+  filename: 
+# 18c
+# January 2021
+db_18000_2021_Q1:
+  patchid:
+  patch_version:
+  filename: 
+# April 2021
+db_18000_2021_Q2:
+  patchid: 32524155
+  patch_version: 18.14.0.0.0
+  filename: p32524155_180000_Linux-x86-64.zip
+# July 2021
+db_18000_2021_Q3:
+  patchid:
+  patch_version:
+  filename: 
+# October 2021
+db_18000_2021_Q4:
+  patchid:
+  patch_version:
+  filename: 
+# 19c
+# January 2021
+db_19c_2021_Q1:
+  patchid: 32218454
+  patch_version: 19.10.0.0.0
+  filename: p32218454_190000_Linux-x86-64.zip
+# April 2021
+db_19c_2021_Q2:
+  patchid: 32578972
+  patch_version: 19.11.0.0.210420 
+  filename: p32578972_190000_Linux-x86-64.zip
+# July 2021
+db_19c_2021_Q3:
+  patchid:
+  patch_version:
+  filename: 
+# October 2021
+#- 33192694
+db_19c_2021_Q4:
+  patchid1: 33192694
+  patchid2: 33182768/33208123
+  patchid3: 33182768/33192793
+  patchids:
+    - 33192694
+    - 33182768/33208123
+    - 33182768/33192793
+  patch_version: 19.13.0.0.211019
+  filename: p33248471_190000_Linux-x86-64.zip

@@ -2,9 +2,9 @@ oracle_owner: oracle
 oracle_inst_group: oinstall
 oracle_dba_group: dba
 
-base_dir: /u01/app
+base_dir: /opt
 oracle_base: "{{base_dir}}/oracle"
-oracle_home: "{{oracle_base}}/product/{{db_version}}/dbhome"
+oracle_home: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
 tns_admin: "{{oracle_home}}/network/admin"
 base_path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/etc"
 path: "{{base_path}}:{{oracle_home}}/bin:{{oracle_home}}/OPatch"

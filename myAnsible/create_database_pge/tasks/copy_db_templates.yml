@@ -1,0 +1,9 @@
+---
+- name: copy database template files - NO CDB/PDB
+  template:
+    src: "dbca_custom_pge_template.dbt.j2"
+    dest: "{{oracle_home_19c}}/assistants/dbca/templates/dbca_custom_pge_template.dbt"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

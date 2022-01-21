@@ -1,33 +1,39 @@
 ---
 # tasks file for oracle_db_install
-# - name: Install oracle-database-preinstall-19c
-#   tags: preinstall
-#   include:
-#     preinstall.yml
+- name: Install oracle-database-preinstall-19c
+  tags: preinstall
+  include:
+    preinstall.yml
 
-# - name: Create Oracle Client home directory with appropriate ownerships and r/w permissions
-#   tags: oradir
-#   include: 
-#     create_orahome_dir.yml
+- name: Create Oracle Client home directory with appropriate ownerships and r/w permissions
+  tags: oradir
+  include: 
+    create_orahome_dir.yml
+
+- name: Copy default .bash_profile file for oracle user
+  tags: profile
+  include: 
+    copy_profile_files.yml
+
+- name: Create oraInst.loc file
+  tags: orainst
+  template:
+    src: oraInstloc.j2
+    dest: /etc/oraInst.loc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy dbora - Database autostart
+  tags: dbora
+  include: 
+    dbora_autostart.yml
+  register: dbora
 
 - name: Unzip Client binaries into newly created Oracle Home Directory
   tags: unzip_dbbin
   include:
     unzip_db_binaries.yml
-
-# - name: Copy default .bash_profile file for oracle user
-#   tags: profile_file
-#   include: 
-#     copy_profile_files.yml
-
-# - name: Create oraInst.loc file
-#   tags: orainst
-#   template:
-#     src: oraInstloc.j2
-#     dest: /etc/oraInst.loc
-#     owner: root
-#     group: root
-#     mode: 0644
 
 - name: copy db19c.rsp response file
   tags: db19crsp
@@ -39,43 +45,10 @@
   include:
     install_db_binaries.yml
 
-- name: Copy db template files
-  tags: db_templates
+- name: Create Oracle Listener
+  tags: listener
   include:
-    copy_db_templates.yml
+    create_listener.yml
+  register: lsnrstatus
 
-- name: Copy dbca response files
-  tags: dbca_resp
-  include: 
-    copy_dbca_19c_rsp.yml
-
-# - name: create database
-#   tags: createDB
-#   include:
-#     create_db_19c.yml
-#   register: dbstatus
-
-# - name: Create Oracle Listener
-#   tags: listener
-#   include:
-#     create_listener.yml
-#   register: lsnrstatus
-
-# - name: Copy tnsnames.ora file 
-#   tags: tnsnames
-#   include:
-#     copy_tnsnames.yml
-#   register: tns
-
-# - name: Deploy dbora - Database autostart
-#   tags: dbora
-#   include: 
-#     dbora_autostart.yml
-#   register: dbora
-
-# - name: Update oratab
-#   tags: oratab
-#   include: 
-#     update_oratab.yml
-  
 #EOF

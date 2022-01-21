@@ -1,0 +1,39 @@
+---
+# tasks file for oracle_db_install
+
+- name: Update oratab
+  tags: oratab
+  include: 
+    update_oratab.yml
+  
+- name: copy sql scripts to target host
+  tags: sql_scripts
+  include:
+    copy_sql_scripts.yml
+
+- name: Copy shell scripts to target host
+  tags: shell_scripts
+  include:
+    copy_shell_scripts.yml
+
+- name: relocate AUD$ table from SYSTEM to SYSAUX tablespace
+  tags: aud_table
+  include: 
+    reloacate_aud_table.yml
+
+- name: Create AUDIT_ARCHIVE table
+  tags: audit_arc
+  include:
+    audit_archive.yml
+  
+- name: enable auditing
+  tags: audit
+  include: 
+    enable_audit.yml
+
+- name: add a crontab entry for auditarc.sh script
+  tags: crontab
+  include:
+    create_cron_entries.yml
+
+#EOF

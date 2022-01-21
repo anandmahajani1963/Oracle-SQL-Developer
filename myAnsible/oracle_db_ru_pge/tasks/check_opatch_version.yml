@@ -1,0 +1,12 @@
+---
+- name: Run opatch version
+  remote_user: "{{ oracle_user }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home }}; 
+    ${ORACLE_HOME}/OPatch/opatch version;
+  register: opatch_version
+
+- name: Display opatch verion
+  debug:
+    msg: "opatch version is: {{ opatch_version.stdout }}"
+

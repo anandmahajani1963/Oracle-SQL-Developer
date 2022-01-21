@@ -1,0 +1,10 @@
+---
+- name: Relocate AUD$ table from SYSTEM to SYSAUX tablespace
+  become: yes
+  become_user: oracle
+  shell: >
+    export ORACLE_SID={{loc_db_name}};
+    export ORACLE_HOME={{oracle_home_19c}};
+    export PATH={{path}};
+    sqlplus -S /nolog @/home/oracle/scripts/reloacate_aud_table.sql
+  

@@ -1,0 +1,32 @@
+---
+- name: Run Installer for 19c db
+  become_user: oracle
+  shell: >
+    export PATH="{{path}}";
+    export ORACLE_HOME="{{oracle_home_19c}}";
+    export CV_ASSUME_DISTID=OEL7.8;
+    {{oracle_home_19c}}/runInstaller -silent -responseFile {{oracle_home_19c}}/install/response/db_bin_19c.rsp;
+  register: ora_db_bin_inst
+
+- debug:
+    var: ora_db_bin_inst
+
+- name: Run orainstRoot.sh
+  become: true
+  become_user: root
+  become_method: sudo
+  shell: >
+    "{{oracle_inventory}}/oraInventory/orainstRoot.sh";
+  when: ora_db_bin_inst.stdout.find('orainstRoot.sh') != -1
+  register: orainstRoot
+
+- name: Run root.sh for 19c db
+  become: true
+  become_user: root
+  become_method: sudo
+  shell: >
+    "{{ oracle_home_19c }}/root.sh";
+  when: ora_db_bin_inst.stdout.find('root.sh') != -1
+  register: rootsh
+
+#EOF

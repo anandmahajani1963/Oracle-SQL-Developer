@@ -1,0 +1,10 @@
+---
+- name: create Audit Archive table
+  become: yes
+  become_user: oracle
+  shell: >
+    export ORACLE_SID={{dbname}};
+    export ORACLE_HOME={{oracle_home_19c}};
+    export PATH={{path}};
+    sqlplus -S /nolog @/home/oracle/scripts/audit_archive.sql
+  

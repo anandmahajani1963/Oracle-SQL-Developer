@@ -1,0 +1,10 @@
+spool /home/oracle/log/audit_trail_fga_std.log
+connect sys/orcldr0W55aP as sysdba
+BEGIN
+  DBMS_AUDIT_MGMT.set_audit_trail_location(
+    audit_trail_type           => DBMS_AUDIT_MGMT.AUDIT_TRAIL_FGA_STD,
+    audit_trail_location_value => '{{audit_ts}}');
+END;
+/
+spool off
+exit

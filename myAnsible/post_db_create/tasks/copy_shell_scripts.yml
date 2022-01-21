@@ -1,0 +1,28 @@
+---
+- name: create scripts and logs directory under oracle home
+  file:
+    path: /home/oracle/scripts/logs
+    state: directory
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+    mode: 0755
+    recurse: yes
+  register: scripts_dir_status
+
+- name: copy auditarc.sh
+  copy:
+    src: auditarc.sh
+    dest: /home/oracle/scripts/auditarc.sh
+    owner: oracle
+    group: oinstall
+    mode: 0750
+
+- name: copy auditarcSOX.sh
+  copy:
+    src: auditarcSOX.sh
+    dest: /home/oracle/scripts/auditarcSOX.sh
+    owner: oracle
+    group: oinstall
+    mode: 0750
+
+#EOF

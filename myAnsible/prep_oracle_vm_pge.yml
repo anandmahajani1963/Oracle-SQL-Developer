@@ -1,0 +1,14 @@
+---
+- hosts: oel7-pge
+  become: true
+  vars:
+    loc_db_name: TST19C
+    dbdomain: pge.com
+    db_version: 19c
+
+  roles:
+    - role: oracle_db_install_19c_pge
+    - role: oracle_opatch_pge
+    - role: create_database_pge
+    - role: post_db_create_pge
+    - role: enable_unified_audit_pge

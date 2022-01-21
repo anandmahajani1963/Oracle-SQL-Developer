@@ -1,0 +1,15 @@
+---
+- name: Include DB status check
+  include: 
+    check_db_status.yml
+
+- name: shutdown the running Oracle database instances and Oracle Listener
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home_19c }};
+    $ORACLE_HOME/bin/dbshut $ORACLE_HOME;
+  when:
+    - ora_pmon != ''
+    - ora_listener != ''
+

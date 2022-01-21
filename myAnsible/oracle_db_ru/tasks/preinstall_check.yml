@@ -14,6 +14,7 @@
   loop: 
     - "{{patchid1}}"
     - "{{patchid2}}"
+    - "{{patchid3}}"
   register: ptch_prereq
 
 - name: Display results of Patch Preinstall check

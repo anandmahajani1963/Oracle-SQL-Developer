@@ -1,0 +1,12 @@
+oracle_owner: oracle
+oracle_inst_group: oinstall
+oracle_dba_group: dba
+db_version: 19c
+oracle_version: 19c
+
+base_dir: /u01
+oracle_base: "{{base_dir}}/app/oracle"
+oracle_home: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
+tns_admin: "{{oracle_home}}/network/admin"
+base_path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/etc"
+path: "{{oracle_home}}/bin:{{oracle_home}}/OPatch:{{base_path}}"

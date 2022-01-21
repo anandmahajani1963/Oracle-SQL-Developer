@@ -1,4 +1,23 @@
 ---
+- name: add the hostname and IP address to /etc/hosts file if not found above
+  become: yes
+  lineinfile:
+    path: /etc/hosts
+    regexp : "{{ansible_enp0s3.ipv4.address}} {{ansible_nodename}}     {{ansible_hostname}}"
+    line : "{{ansible_enp0s3.ipv4.address}} {{ansible_nodename}}     {{ansible_hostname}}"
+    #state: present
+    #  register: hostfile_update
+
+- name: delete files listener.ora, tnsnames.ora, sqlnet.ora, ldap.ora if present
+  file:
+    path: "{{oracle_home_19c}}/network/admin/{{item}}"
+    state: absent
+  with_items:
+    - listener.ora
+    - sqlnet.ora
+    - tnsnames.ora
+    - ldap.ora
+
 - name: Create and start listener for Oracle database home
   become: yes
   become_user: oracle

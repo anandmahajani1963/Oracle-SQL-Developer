@@ -1,0 +1,26 @@
+---
+# tasks file for oracle_db_install
+
+- name: Copy db template files
+  tags: db_templates
+  include:
+    copy_db_templates.yml
+
+- name: Copy dbca response files
+  tags: dbca_resp
+  include: 
+    copy_dbca_19c_rsp.yml
+
+- name: create database
+  tags: createDB
+  include:
+    create_db_19c.yml
+  register: dbstatus
+
+#- name: Copy tnsnames.ora file 
+  #tags: tnsnames
+  #include:
+    #copy_tnsnames.yml
+  #register: tns
+
+#EOF

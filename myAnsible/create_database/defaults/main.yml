@@ -1,0 +1,37 @@
+---
+# defaults file for oracle_db_install
+oracle_version: 19c
+oracle_owner: oracle
+oracle_dba_grp: dba
+oracle_inst_grp: oinstall
+osoper_group: oper
+osbackupdba_group: backupdba
+osdgdba_group: dgdba
+oskmdba_group: kmdba
+osracdba_group: racdba
+
+oracle_user_home: /home/oracle
+scripts_dir: "{{oracle_user_home}}/scripts"
+log_dir: "{{scripts_dir}}/log"
+
+base_dir: /opt
+oracle_base: "{{base_dir}}/oracle"
+oracle_inventory: "{{base_dir}}/app"
+oracle_home_19c: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
+oracle_home_21c: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
+oracle_data: "{{oracle_base}}/oradata"
+oracle_fra: "{{oracle_base}}/fast_recovery_area"
+
+software_repo: /software/Database/Oracle
+oracle_db_19c_zip: "{{software_repo}}/{{db_version}}/LINUX.X64_193000_db_home.zip"
+oracle_db_21c_zip: "{{software_repo}}/{{db_version}}/LINUX.X64_213000_db_home.zip"
+oracle_db_19c_rsp: "{{software_repo}}/{{db_version}}"
+oracle_db_19c_template: "{{software_repo}}/{{db_version}}"
+oracle_db_21c_rsp: "{{software_repo}}/{{db_version}}"
+oracle_db_21c_template: "{{software_repo}}/{{db_version}}"
+tns_admin: "{{oracle_home_19c}}/network/admin"
+fra_size: 16
+
+path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/loca/bin:/usr/local/sbin:{{oracle_home_19c}}/bin:{{oracle_home_19c}}/OPatch"
+
+audit_ts: AUDIT_TS

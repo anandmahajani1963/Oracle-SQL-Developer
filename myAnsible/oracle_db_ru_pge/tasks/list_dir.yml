@@ -1,0 +1,16 @@
+---
+- hosts: oel8-19c-db
+  become: yes
+  become_user: oracle
+  vars:
+    - dir_path: /software/Database/Oracle/19c/db_19c_2021_Q4 
+  tasks:
+    - name: list directories
+      find:
+        paths: "{{dir_path}}"
+        file_type: directory
+        recurse: yes
+      
+    - debug:
+        var: dirlist 
+ 

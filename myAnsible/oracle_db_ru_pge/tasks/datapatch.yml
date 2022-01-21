@@ -1,0 +1,20 @@
+---
+- name: List databases running on the host
+  include:
+    dblist.yml
+
+- name: 12c - apply datapatch
+  become: yes
+  become_user: "{{ oracle_user }}"
+  shell: >
+    export ORACLE_SID={{ item }};
+    export ORACLE_HOME={{ oracle_home }};
+    export PATH={{ path }};
+    cd "{{ opatch_dir }}";
+    ./datapatch -verbose
+  register: datapatch
+  with_items: "{{ dblist.stdout_lines }}"
+  run_once: true
+  failed_when: datapatch.rc == 1
+  tags: catbundle
+

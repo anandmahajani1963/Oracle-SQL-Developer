@@ -1,0 +1,28 @@
+---
+- name: Check if oracle database(s) is/are up and running
+  shell: >
+    ps -ef|grep pmon|grep -v grep|cut -f3 -d"_";
+  register: ora_pmon
+- name: list database instance(s) running
+  debug:
+    msg: "Database(s) {{ ora_pmon.stdout_lines }} is/are running "
+
+- name: list Oracle Listner(s) running
+  shell: >
+    ps -ef|grep -v grep|grep lsnr |awk '{print $9}';
+  register: ora_listener
+- name: Listener Status
+  debug:
+    msg: "Oracle listner {{ ora_listener }} is running"
+
+- name: start Oracle database instances listed in /etc/oratab and Oracle Listener
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{ oracle_home_19c }};
+    $ORACLE_HOME/bin/dbstart $ORACLE_HOME;
+  register: ora_start
+  when:
+    - ora_pmon.stdout == ""
+    - ora_listener.stdout == ""
+

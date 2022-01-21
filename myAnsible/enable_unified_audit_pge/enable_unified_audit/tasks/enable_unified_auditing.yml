@@ -1,0 +1,11 @@
+---
+- name: Enable unified auditing
+  become: yes
+  become_user: "{{ oracle_owner }}"
+  shell: >
+    export ORACLE_HOME={{oracle_home_19c}};
+    export PATH={{path}};
+    cd $ORACLE_HOME/rdbms/lib;
+    make -f ins_rdbms.mk uniaud_on ioracle;
+  register: uni_audit
+

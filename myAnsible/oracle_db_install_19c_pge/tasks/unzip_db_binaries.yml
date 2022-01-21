@@ -1,0 +1,11 @@
+---
+- name: unzip oracle 19c db software
+  unarchive:
+    src: "{{ oracle_db_19c_zip }}"
+    dest: "{{ oracle_home_19c }}"
+    remote_src : yes
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+  register: unzip_bin
+
+#EOF

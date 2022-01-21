@@ -1,0 +1,36 @@
+
+---
+- name: create scripts and logs directory under oracle home
+  file:
+    path: /home/oracle/scripts/logs
+    state: directory
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+    mode: 0755
+    recurse: yes
+  register: scripts_dir_status
+
+- name: copy audit_archive.sql
+  copy:
+    src: audit_archive.sql
+    dest: /home/oracle/scripts/audit_archive.sql
+    owner: oracle
+    group: oinstall
+    mode: 0644
+
+- name: copy enable_audit.sql
+  copy:
+    src: enable_audit.sql
+    dest: /home/oracle/scripts/enable_audit.sql
+    owner: oracle
+    group: oinstall
+    mode: 0644
+
+- name: copy reloacate_aud_table.sql
+  copy:
+    src: reloacate_aud_table.sql
+    dest: /home/oracle/scripts/reloacate_aud_table.sql
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

@@ -1,0 +1,13 @@
+---
+- name: Create and start listener for Oracle database home
+  become: yes
+  become_user: oracle
+  shell: >
+    export ORACLE_HOME="{{oracle_home_19c}}";
+    export ORACLE_SID="{{dbname}}";
+    export PATH="{{path}}";
+    netca -silent -responseFile "{{oracle_home_19c}}/assistants/netca/netca.rsp";
+  register: listner_status
+
+- debug:
+    var: listner_status

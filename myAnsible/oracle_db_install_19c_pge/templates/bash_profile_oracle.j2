@@ -1,0 +1,28 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+export TMP=/tmp
+export TMPDIR=/tmp
+export TEMP=/tmp
+export CV_ASSUME_DISTID=OEL7.8
+export SSH_AUTH_SOCK=0
+
+export ORACLE_SID={{loc_db_name}}
+export ORACLE_BASE={{oracle_base}}
+export ORACLE_HOME={{oracle_home_19c}}
+export TNS_ADMIN="{{oracle_home_19c}}/network/admin"
+
+#export PATH=${ORACLE_HOME}/bin:${ORACLE_HOME}/OPatch:${PATH}
+export PATH={{path}}
+
+alias pmon='ps -ef|grep pmon|grep -v grep|cut -f3 -d"_"'
+alias lsnrstat='lsnrctl status'
+alias lsnrstart='lsnrctl start'
+alias lsnrstop='lsnrctl stop'
+alias lsnrrestart='lsnrctl restart'
+alias lsnrreload='lsnrctl reload'

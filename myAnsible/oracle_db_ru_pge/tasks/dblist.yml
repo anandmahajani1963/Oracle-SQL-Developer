@@ -1,0 +1,5 @@
+---
+- name: List of database names on host
+  shell: cat /etc/oratab|grep {{ oracle_home }}|grep ':Y'|grep -v \*|cut -f1 -d':'
+  register: dblist
+  tags: datapatch

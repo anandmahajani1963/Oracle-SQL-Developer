@@ -6,19 +6,55 @@
   register:
     db_preinst_19c
 
-- name: set system hugepages
-  lineinfile:
-    path: /etc/sysctl.conf
-    line: |
-      vm.nr_hugepages={{ ansible_memtotal_mb/2 | round | int }}
-
-- name: run sysctl -p
-  shell: >
-    sysctl -p;
-
 - name: Set Oracle user password
   tags: orapass
   shell: >
     echo "{{oracle_pass}}"|passwd oracle --stdin
+
+- name: copy ssh keys to oracle user
+  tags: sshkey
+  authorized_key:
+    user: oracle
+    key: "{{ lookup('file', '/home/' + lookup('env', 'USER') + '/.ssh/id_rsa.pub') }}"
+
+- name: Add users to group vboxsf
+  user:
+    name: oracle
+    groups: vboxsf
+    append: yes
+
+- name: check hugepagesize (default is 2048KB)
+  shell: >
+    export PATH={{path}};
+    grep Hugepagesize /proc/meminfo|cut -f2 -d":";
+  register: hugepagesize
+- debug:
+    msg: "{{hugepagesize.stdout|trim}}"
+
+#- name: Check if huge pages are configured 
+  #shell: >
+    #export PATH={{path}};
+    #grep 'vm.nr_hugepages =' /etc/sysctl.conf
+  #register: hugepages
+
+- name: set system hugepages
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: |
+      #------------------------------------------------------------------------
+      # (from 'grep -i hugepagesize /proc/meminfo' output) Hugepagesize: "{{hugepagesize.stdout|trim}}"
+      # (from 'free -m' output) RAM = {{ansible_memtotal_mb}} MB
+      # Reserving 60% of physical memory for Oracle Database SGA
+      # {{ansible_memtotal_mb}} MB * 0.6 = {{ (ansible_memtotal_mb * 0.6) | round | int }} 
+      # devide the above number by 2 MB - hugepage size
+      # {{ansible_memtotal_mb}} * 0.6/2+5 = {{ (ansible_memtotal_mb*0.6/2+5) | round | int }} huge pages
+      #------------------------------------------------------------------------
+      vm.nr_hugepages = {{ (ansible_memtotal_mb * 0.6/2+5) | round | int }}
+  #when: hugepages is not defined
+  #when: hugepages.stdout == ''
+
+- name: run sysctl -p
+  shell: >
+    sysctl -p;
 
 #EOF

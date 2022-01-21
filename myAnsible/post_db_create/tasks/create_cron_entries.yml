@@ -1,0 +1,12 @@
+---
+- name: Create cron entry for auditarc.sh
+  become: yes
+  become_user: oracle
+  cron:
+    name: "Run auditarc.sh script"
+    minute: "00"
+    hour: "10"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "/home/oracle/scripts/auditarc.sh {{dbname}} > /dev/null 2>&1"

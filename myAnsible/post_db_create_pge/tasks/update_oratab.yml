@@ -1,0 +1,11 @@
+---
+- name: update /etc/oratab for autostart
+  tags: oratab
+  replace:
+    path: /etc/oratab
+    regexp: '{{loc_db_name}}:{{oracle_home_19c}}:N'
+    replace: '{{loc_db_name}}:{{oracle_home_19c}}:Y'
+  register: oratab
+
+- debug:
+    var: oratab

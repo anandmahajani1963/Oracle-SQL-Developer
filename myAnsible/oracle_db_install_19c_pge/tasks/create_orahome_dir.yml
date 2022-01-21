@@ -1,0 +1,100 @@
+---
+- name: change ownership of oracle base, product
+  file:
+    state: directory
+    path: "{{ oracle_base }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_base_dir
+
+- name: create oracle db 19c home directory and change ownership
+  file:
+    state: directory
+    path: "{{ oracle_home_19c }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_home_dir
+
+- name: create oracle redo1 directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_redo1 }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_redo1_dir
+
+- name: create oracle redo2 directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_redo2 }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_redo2_dir
+
+- name: create oracle cntl1 directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_cntl1 }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_cntl1_dir
+
+- name: create oracle cntl2 directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_cntl2 }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_cntl2_dir
+
+- name: create oracle cntl3 directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_cntl3 }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_cntl3_dir
+
+- name: create oracle data directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_data }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_data_dir
+
+- name: create user data directory and change ownership 
+  file:
+    state: directory
+    path: "{{ user_data }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_data2_dir
+
+- name: create oracle fra directory and change ownership 
+  file:
+    state: directory
+    path: "{{ oracle_fra }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: ora_fra_dir
+
+- name: create directory for oraInventory
+  file:
+    state: directory
+    path: "{{ oracle_inventory }}"
+    owner: "{{ oracle_owner }}"
+    group: "{{ oracle_inst_grp }}"
+    recurse: yes
+  register: oraInv
+#EOF

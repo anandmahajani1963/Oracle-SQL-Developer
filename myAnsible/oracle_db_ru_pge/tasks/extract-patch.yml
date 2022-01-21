@@ -1,0 +1,10 @@
+---
+- name: extract Patch
+  remote_user: "{{ oracle_user }}"
+  unarchive:
+    src: "{{ dbru_patch_dir }}/db_19c_2021_Q4/{{ db_19c_2021_Q4.filename }}"
+    dest: "{{ dbru_patch_dir }}/db_19c_2021_Q4"
+    remote_src: true
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_inst_group }}"
+    mode: 0755 

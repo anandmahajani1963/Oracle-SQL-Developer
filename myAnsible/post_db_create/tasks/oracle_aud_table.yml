@@ -1,0 +1,52 @@
+---
+- name: create scripts directory if not present
+  file:
+    state: directory
+    path: /home/oracle/scripts
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+  register: scripts_dir
+
+- name: create log directory if not present
+  file:
+    state: directory
+    path: /home/oracle/log
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+  register: log_dir
+
+- name: copy sql to relocate AUD_STD
+  template: 
+    src: audit_trail_aud_std.sql.j2
+    dest: /home/oracle/scripts/audit_trail_aud_std.sql
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+    mode: 0644
+
+- name: copy sql to relocate FGA_STD
+  template: 
+    src: audit_trail_fga_std.sql.j2
+    dest: /home/oracle/scripts/audit_trail_fga_std.sql
+    owner: "{{oracle_owner}}"
+    group: "{{oracle_inst_grp}}"
+    mode: 0644
+
+- name: relocate audit table AUD$ from SYSTEM Tablespace to AUDIT_TS
+  shell: >
+    export ORACLE_SID={{dbname}};
+    export ORACLE_HOME={{oracle_home_19c}};
+    export PATH={{path}};
+    sqlplus -S /nolog @/home/oracle/scripts/audit_trail_aud_std.sql
+  register: aud_table
+- debug:
+    var: aud_table
+
+- name: relocate audit table FGA_LOG$ from SYSTEM Tablespace to AUDIT_TS
+  shell: >
+    export ORACLE_SID={{dbname}};
+    export ORACLE_HOME={{oracle_home_19c}};
+    export PATH={{path}};
+    sqlplus -S /nolog @/home/oracle/scripts/audit_trail_fga_std.sql
+  register: fga_table
+- debug:
+    var: aud_table

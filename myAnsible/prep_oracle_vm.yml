@@ -1,0 +1,14 @@
+---
+- hosts: oel8-19c-db
+  become: true
+  vars:
+    dbname: DEV19C
+    dbdomain: digilinx.us
+    db_version: 19c
+
+  roles:
+    - role: oracle_db_install_19c
+    #- role: oracle_opatch
+    - role: create_database
+    - role: post_db_create
+    - role: enable_unified_audit

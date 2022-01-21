@@ -1,0 +1,9 @@
+---
+- name: copy dbca response file
+  template:
+    src: "dbca_19c.rsp.j2"
+    dest: "{{oracle_home_19c}}/assistants/dbca/dbca_19c.rsp"
+    owner: oracle
+    group: oinstall
+    mode: 0644
+

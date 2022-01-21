@@ -1,0 +1,38 @@
+---
+# defaults file for oracle_db_install
+oracle_version: 19c
+oracle_owner: oracle
+oracle_dba_grp: dba
+oracle_inst_grp: oinstall
+osoper_group: oper
+osbackupdba_group: backupdba
+osdgdba_group: dgdba
+oskmdba_group: kmdba
+osracdba_group: racdba
+
+base_dir: /opt
+oracle_base: "{{base_dir}}/oracle"
+oracle_inventory: "{{base_dir}}/app"
+
+oracle_user_home: /home/oracle
+oracle_home_19c: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
+oracle_home_21c: "{{oracle_base}}/product/{{db_version}}/dbhome_1"
+tns_admin: "{{oracle_home_19c}}/network/admin"
+
+oracle_data: /opt/oracle/oradata
+user_data: /opt/oracle/oradata
+oracle_fra: /opt/oracle/fast_recovery_area
+oracle_redo1: "{{oracle_data}}"
+oracle_redo2: "{{oracle_fra}}"
+oracle_cntl1: "{{oracle_data}}"
+oracle_cntl2: "{{oracle_fra}}"
+
+software_repo: /software/Database/Oracle
+oracle_db_19c_zip: "{{software_repo}}/{{db_version}}/LINUX.X64_193000_db_home.zip"
+oracle_db_19c_oct2021_zip: "{{software_repo}}/{{db_version}}/db_19c_2021_Q4/oracl19c_2021Oct_pge.zip"
+
+fra_size: 16
+dbcharacterset: AL32UTF8
+
+path: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/loca/bin:/usr/local/sbin:{{oracle_home_19c}}/bin:{{oracle_home_19c}}/OPatch"
+

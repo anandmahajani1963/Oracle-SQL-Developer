@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  vars:
+    dbname: OAMDEV
+    dbdomain: digilinx.us
+    db_version: 
+    db_release: 
+    yyyy: 2021
+    qtr: 
+    patchid: 
+    patch_filename: p{{patchid}}_{{db_release}}_Linux-x86-64.zip
+    patch_dir: "{{patchid}}"
+    patchid1: 
+    patchid2: 
+    patchid3: 
+
+  roles:
+    - role: oracle_opatch_pge
+    - role: oracle_db_ru_pge

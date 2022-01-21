@@ -1,0 +1,83 @@
+---
+- name: print TNS_ADMIN
+  tags: tns
+  debug:
+    msg: "TNS_ADMIN: {{ tns_admin }}"
+
+- name: check database instance status
+  tags: dbstat
+  include:
+    check_db_status.yml
+
+#- name: check database log mode
+  #include:
+    #db_log_mode.yml
+
+#- name: print database log mode
+  #debug:
+    #msg: "Database is running in {{ db_log_mode.stdout }}"
+
+- name: Shutdown Database instance(s) and Listener
+  tags: dbshut
+  include: 
+    dbshut.yml
+
+- name: Check OPatch version
+  tags: chk_optch
+  include: 
+    check_opatch_version.yml
+  register: chk_optch
+
+- debug:
+    var: chk_optch
+
+- name: Install latest version of OPatch 
+  tags: upg_optch
+  include: 
+    extract-opatch.yml
+  register: upg_optch
+
+- debug:
+    var: upg_optch
+
+- name: Extract Patch
+  tags: ext_ptch
+  include:
+    extract-patch.yml
+  run_once: true
+  register: ext_ptch
+
+- name: Run patch prereq check
+  tags: ptch_prereq
+  include: 
+    preinstall_check.yml
+  register: ptch_prereq
+
+#- debug:
+    #var: ptch_prereq
+
+- name: Install Patch
+  tags: ptch_inst
+  include:
+    patch_install.yml
+  #when:
+    #"'OPatch succeeded' in ptch_prereq.stdout"
+  register: ptch_inst
+
+- debug:
+    var: ptch_inst
+
+- name: Restart Database(s) and Listener
+  tags: dbstart
+  include:
+    dbstart.yml
+  #when:
+    #"'OPatch completed' in item.stdout or 'OPatch succeeded' in item.stdout"
+  #loop: "{{patch_inst_results.results}}"
+  register: db_restart
+
+- name: Run Datapatch for each of the databses
+  tags: data_ptch
+  include:
+    datapatch.yml
+  register: data_ptch

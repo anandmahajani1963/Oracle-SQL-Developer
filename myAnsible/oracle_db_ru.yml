@@ -3,7 +3,7 @@
   become: true
   vars:
     dbname: OAMDEV
-    dbdomain: cc.emory.edu
+    dbdomain: digilinx.us
     db_version: 
     db_release: 
     yyyy: 2021
@@ -13,6 +13,7 @@
     patch_dir: "{{patchid}}"
     patchid1: 
     patchid2: 
+    patchid3: 
 
   roles:
     - role: oracle_opatch
